@@ -62,9 +62,9 @@ detect_platform() {
 # Get latest version
 get_latest_version() {
     if command -v curl >/dev/null 2>&1; then
-        curl -fsSL "https://api.github.com/repos/${RELEASE_REPO}/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'
+        curl -fsSL "https://api.github.com/repos/${RELEASE_REPO}/releases/latest" | grep -m1 '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'
     elif command -v wget >/dev/null 2>&1; then
-        wget -qO- "https://api.github.com/repos/${RELEASE_REPO}/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'
+        wget -qO- "https://api.github.com/repos/${RELEASE_REPO}/releases/latest" | grep -m1 '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'
     else
         error "curl or wget is required"
     fi
