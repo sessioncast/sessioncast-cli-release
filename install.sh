@@ -17,10 +17,10 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Print functions
-info() { echo -e "${BLUE}➜${NC} $1"; }
-success() { echo -e "${GREEN}✓${NC} $1"; }
-warn() { echo -e "${YELLOW}!${NC} $1"; }
-error() { echo -e "${RED}✗${NC} $1"; exit 1; }
+info() { echo -e "${BLUE}➜${NC} $1" >&2; }
+success() { echo -e "${GREEN}✓${NC} $1" >&2; }
+warn() { echo -e "${YELLOW}!${NC} $1" >&2; }
+error() { echo -e "${RED}✗${NC} $1" >&2; exit 1; }
 
 # Detect platform
 detect_platform() {
