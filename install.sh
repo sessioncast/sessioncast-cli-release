@@ -192,16 +192,12 @@ main() {
     echo ""
     success "Installation complete!"
     echo ""
-    echo -e "  ${YELLOW}Next steps:${NC}"
+    
+    # Output the PATH export for eval
+    echo "export PATH=\"\$HOME/.sessioncast/bin:\$PATH\""
     echo ""
-    echo -e "  1. Restart your shell or run:"
-    echo -e "     ${BLUE}source ~/.zshrc${NC}  (or ~/.bashrc)"
-    echo ""
-    echo -e "  2. Run SessionCast:"
-    echo -e "     ${BLUE}sessioncast${NC}"
-    echo ""
-    echo -e "  ${GREEN}Documentation:${NC} https://sessioncast.io"
-    echo ""
+    echo "# Run this command to start using sessioncast:" >&2
+    echo "#   sessioncast --version" >&2
 }
 
 main "$@"
