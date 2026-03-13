@@ -72,12 +72,16 @@ download_binary() {
     local version="$2"
     local archive_name archive_url
     
-    if [[ "$platform" == *"-linux" ]]; then
-        archive_name="sessioncast-${platform}.tar.gz"
-    else
-        archive_name="sessioncast-${platform}.tar.gz"
-    fi
+    # Platform naming: darwin-arm64 -> arm64-darwin, linux-x86_64 -> x86_64-linux
+    local archive_platform
+    case "$platform" in
+        darwin-arm64) archive_platform="arm64-darwin" ;;
+        darwin-x86_64) archive_platform="x86_64-darwin" ;;
+        linux-x86_64) archive_platform="x86_64-linux" ;;
+        *) archive_platform="$platform" ;;
+    esac
     
+    archive_name="sessioncast-${archive_platform}.tar.gz"
     archive_url="https://github.com/${RELEASE_REPO}/releases/download/${version}/${archive_name}"
     
     info "Downloading ${archive_name}..."
