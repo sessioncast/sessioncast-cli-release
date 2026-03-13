@@ -30,7 +30,11 @@ detect_platform() {
         Darwin) os="darwin" ;;
         Linux) os="linux" ;;
         MINGW*|MSYS*|CYGWIN*) 
-            error "Windows detected. Please visit https://sessioncast.io/install for Windows instructions."
+            echo "Windows detected. Use PowerShell instead:" >&2
+            echo "" >&2
+            echo "  irm https://raw.githubusercontent.com/sessioncast/sessioncast-cli-release/main/install.ps1 | iex" >&2
+            echo "" >&2
+            exit 1
             ;;
         *) 
             error "Unsupported OS: $(uname -s)"
