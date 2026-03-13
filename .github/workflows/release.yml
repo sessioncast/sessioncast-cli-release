@@ -1,0 +1,107 @@
+name: Release
+
+on:
+  repository_dispatch:
+    types: [release-triggered]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., v0.1.7)'
+        required: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+            os: macos-latest
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            cross: true
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          repository: sessioncast/sessioncast-cli
+          ref: ${{ github.event.inputs.version || github.event.client_payload.version }}
+          token: ${{ secrets.SOURCE_REPO_PAT }}
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Setup cross-compilation (macOS x86_64)
+        if: matrix.cross
+        run: |
+          rustup target add x86_64-apple-darwin
+          echo "SDKROOT=$(xcrun -sdk macosx --show-sdk-path)" >> $GITHUB_ENV
+          echo "CARGO_BUILD_TARGET=${{ matrix.target }}" >> $GITHUB_ENV
+
+      - name: Build
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Package (Unix)
+        if: matrix.os != 'windows-latest'
+        run: |
+          cd target/${{ matrix.target }}/release
+          strip sessioncast 2>/dev/null || true
+          ARCHIVE_NAME=$(echo "${{ matrix.target }}" | sed 's/aarch64-/arm64-/' | sed 's/-apple-/-/' | sed 's/x86_64-unknown-linux-gnu/x86_64-linux/')
+          tar -czvf sessioncast-${ARCHIVE_NAME}.tar.gz sessioncast
+          shasum -a 256 sessioncast-${ARCHIVE_NAME}.tar.gz > sessioncast-${ARCHIVE_NAME}.sha256
+
+      - name: Package (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          cd target/${{ matrix.target }}/release
+          7z a sessioncast-x86_64-windows.zip sessioncast.exe
+          certutil -hashfile sessioncast-x86_64-windows.zip SHA256 > sessioncast-x86_64-windows.sha256
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sessioncast-${{ matrix.target }}
+          path: |
+            target/${{ matrix.target }}/release/sessioncast-*.tar.gz
+            target/${{ matrix.target }}/release/sessioncast-*.zip
+            target/${{ matrix.target }}/release/sessioncast-*.sha256
+          retention-days: 1
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: sessioncast-*
+          merge-multiple: true
+
+      - name: Display structure
+        run: ls -la artifacts/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.version || github.event.client_payload.version }}
+          files: artifacts/*
+          generate_release_notes: true
+          draft: false
+          prerelease: false
