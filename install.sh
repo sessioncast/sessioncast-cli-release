@@ -192,11 +192,17 @@ main() {
     
     # Cleanup
     cleanup
-    
+
     echo ""
     success "Installation complete!"
     echo ""
-    
+
+    # Install dependencies automatically
+    info "Installing dependencies..."
+    export PATH="$INSTALL_DIR:$PATH"
+    "$INSTALL_DIR/sessioncast" deps install >&2 || warn "Dependency installation failed. Run 'sessioncast deps install' manually."
+    echo ""
+
     # Output the PATH export for eval
     echo "export PATH=\"\$HOME/.sessioncast/bin:\$PATH\""
     echo ""
