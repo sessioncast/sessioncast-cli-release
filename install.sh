@@ -165,11 +165,11 @@ cleanup() {
 
 # Main
 main() {
-    echo ""
-    echo -e "${BLUE}╔══════════════════════════════════════╗${NC}"
-    echo -e "${BLUE}║     SessionCast CLI Installer        ║${NC}"
-    echo -e "${BLUE}╚══════════════════════════════════════╝${NC}"
-    echo ""
+    echo "" >&2
+    echo -e "${BLUE}╔══════════════════════════════════════╗${NC}" >&2
+    echo -e "${BLUE}║     SessionCast CLI Installer        ║${NC}" >&2
+    echo -e "${BLUE}╚══════════════════════════════════════╝${NC}" >&2
+    echo "" >&2
     
     # Detect platform
     local platform
@@ -193,20 +193,15 @@ main() {
     
     # Cleanup
     cleanup
-
-    echo ""
+    
+    echo "" >&2
     success "Installation complete!"
-    echo ""
+    echo "" >&2
 
-    # Install dependencies automatically
-    info "Installing dependencies..."
-    export PATH="$INSTALL_DIR:$PATH"
-    "$INSTALL_DIR/sessioncast" deps install >&2 || warn "Dependency installation failed. Run 'sessioncast deps install' manually."
-    echo ""
-
-    # Output the PATH export for eval
+    # Output the PATH export for eval (only stdout)
     echo "export PATH=\"\$HOME/.sessioncast/bin:\$PATH\""
-    echo ""
+
+    echo "" >&2
     echo "# Run this command to start using sessioncast:" >&2
     echo "#   sessioncast --version" >&2
 }

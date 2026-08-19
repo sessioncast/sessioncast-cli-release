@@ -57,12 +57,6 @@ if ($CurrentPath -notlike "*$InstallDir*") {
 
 Write-Success "Installation complete!"
 Write-Host ""
-
-# Install dependencies automatically
-Write-Info "Installing dependencies..."
-& "$InstallDir\sessioncast.exe" deps install
-Write-Host ""
-
 Write-Host "  Run: " -NoNewline
 Write-Host "sessioncast" -ForegroundColor Green
 Write-Host ""
