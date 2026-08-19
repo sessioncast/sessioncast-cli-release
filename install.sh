@@ -82,6 +82,7 @@ download_binary() {
         darwin-arm64) archive_platform="arm64-darwin" ;;
         darwin-x86_64) archive_platform="x86_64-darwin" ;;
         linux-x86_64) archive_platform="x86_64-linux" ;;
+        linux-arm64) archive_platform="arm64-linux" ;;
         *) archive_platform="$platform" ;;
     esac
     
